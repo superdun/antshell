@@ -11,7 +11,7 @@ QINIU_BUCKET_NAME = 'makerimg'
 QINIU_BUCKET_DOMAIN = 'http://oc1is8h9w.bkt.clouddn.com/'
 
 TAG=[('mach', u'机械'), ('auto', u'自动化'), ('elec', u'电子'), ('IT', u"编程")]
-DEBUG = False
+DEBUG = True
 SQLALCHEMY_ECHO = False
 POST_PER_PAGE = 20
 UPLOAD_URL = 'static/upload'

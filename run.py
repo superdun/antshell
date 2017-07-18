@@ -37,9 +37,10 @@ def upload():
     result = thumb.upload_file(file, UPLOAD_URL, QINIU_DOMAIN, qiniu_store)
     return jsonify(result)
 
-@app.route('/api/test')
+@app.route('/api/test', methods=['POST','GET'])
 def testApi():
     if request.method=='POST':
+        print 'aaaa'
         uid = request.form['uid']
         name = request.form['name']
         print uid
@@ -130,4 +131,4 @@ def logout():
 
 application = app
 if __name__ == '__main__':
-    app.run(port=8082)
+    app.run(port=8080)
