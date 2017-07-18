@@ -42,7 +42,7 @@ def testApi():
     if request.method=='POST':
         uid = request.form['uid']
         name = request.form['name']
-
+        cache.delete('testData')
         cache.set('testData',{"uid":uid,'name':name})
 
         return jsonify({'status':'ok','content':{"uid":uid,'name':name}})
