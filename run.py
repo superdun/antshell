@@ -4,6 +4,11 @@ import thumb
 from moduleGlobal import app, qiniu_store, QINIU_DOMAIN, TAG, UPLOAD_URL
 import moduleAdmin as admin
 import flask_login
+from werkzeug.contrib.cache import SimpleCache
+
+
+cache = SimpleCache()
+
 
 
 
@@ -32,6 +37,23 @@ def upload():
     result = thumb.upload_file(file, UPLOAD_URL, QINIU_DOMAIN, qiniu_store)
     return jsonify(result)
 
+@app.route('/api/test')
+def testApi():
+    if request.method=='POST':
+        uid = request.form['uid']
+        name = request.form['name']
+        print uid
+        print name
+        cache.set('testData',{"uid":uid,'name':name})
+
+        return jsonify({'status':'ok','content':{"uid":uid,'name':name}})
+    else:
+        rv = cache.get('testData')
+        if rv is None:
+            return jsonify({'status': 'error'})
+        uid = rv['uid']
+        name = rv['name']
+        return jsonify({'status':'ok','content':{"uid":uid,'name':name}})
 # admin
 admin.dashboard()
 # login
