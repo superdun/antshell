@@ -48,10 +48,16 @@ def testApi():
         return jsonify({'status':'ok','content':{"uid":uid,'name':name}})
     else:
         rv = cache.get('testData')
+        print 'get '
         if rv is None:
             return jsonify({'status': 'error'})
         uid = rv['uid']
         name = rv['name']
+        print """
+            %s
+            %s
+            ################
+        """%(uid,name)
         return jsonify({'status':'ok','content':{"uid":uid,'name':name}})
 # admin
 admin.dashboard()
