@@ -4,10 +4,10 @@ import thumb
 from moduleGlobal import app, qiniu_store, QINIU_DOMAIN, TAG, UPLOAD_URL
 import moduleAdmin as admin
 import flask_login
-from werkzeug.contrib.cache import SimpleCache
+from werkzeug.contrib.cache import FileSystemCache
 
 
-cache = SimpleCache()
+cache = FileSystemCache(cache_dir='cache/',default_timeout=300)
 
 
 
@@ -46,18 +46,13 @@ def testApi():
         cache.set('testData',{"uid":uid,'name':name})
 
         return jsonify({'status':'ok','content':{"uid":uid,'name':name}})
-    else:
+    if   request.method == 'GET':
         rv = cache.get('testData')
         print 'get '
         if rv is None:
             return jsonify({'status': 'error'})
         uid = rv['uid']
         name = rv['name']
-        print """
-            %s
-            %s
-            ################
-        """%(uid,name)
         return jsonify({'status':'ok','content':{"uid":uid,'name':name}})
 # admin
 admin.dashboard()
