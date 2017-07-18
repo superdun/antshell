@@ -40,11 +40,9 @@ def upload():
 @app.route('/api/test', methods=['POST','GET'])
 def testApi():
     if request.method=='POST':
-        print 'aaaa'
         uid = request.form['uid']
         name = request.form['name']
-        print uid
-        print name
+
         cache.set('testData',{"uid":uid,'name':name})
 
         return jsonify({'status':'ok','content':{"uid":uid,'name':name}})
