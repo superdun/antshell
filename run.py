@@ -54,6 +54,15 @@ def testApi():
         uid = rv['uid']
         name = rv['name']
         return jsonify({'status':'ok','content':{"uid":uid,'name':name}})
+
+@app.route('/api/verify', methods=['GET'])
+def CheckTestApi():
+     username = request.args.get('username')
+     psswd = request.args.get('psswd')
+     if username == 'LiDun' and psswd == "ZuiShuai":
+         return jsonify({'status': 'ok', 'code': '200', 'content': {"uid": 123546, 'name': 'LiDun'}})
+
+     return jsonify({'status': 'failed', 'code': '400'})
 # admin
 admin.dashboard()
 # login
