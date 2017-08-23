@@ -93,7 +93,7 @@ def cat():
         if rv is None:
             return jsonify({'status': 'close'})
         cache.delete('catData')
-        return jsonify({ {"quantityTime": rv[0], 'status': rv[1]}})
+        return jsonify({ "quantityTime": rv[0], 'status': rv[1]})
 # admin
 admin.dashboard()
 # login
