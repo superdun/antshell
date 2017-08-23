@@ -91,9 +91,9 @@ def cat():
         rv = cache.get('catData')
 
         if rv is None:
-            return jsonify({'status': 'error'})
-
-        return jsonify({'status': 'ok', 'content': {"quantityTime": rv[0], 'status': rv[1]}})
+            return jsonify({'status': 'close'})
+        cache.delete('catData')
+        return jsonify({ {"quantityTime": rv[0], 'status': rv[1]}})
 # admin
 admin.dashboard()
 # login
