@@ -63,6 +63,37 @@ def CheckTestApi():
          return jsonify({'status': 'ok', 'code': '200', 'content': {"uid": 123546, 'name': 'LiDun'}})
 
      return jsonify({'status': 'failed', 'code': '400'})
+
+
+@app.route('/api/cat', methods=['POST','GET'])
+def cat():
+
+    if request.method == 'POST':
+
+        quantity = request.form['quantity']
+        password = request.form['password']
+
+        if quantity =='1':
+            quantityTime = 0.2
+        elif quantity =='2':
+            quantityTime = 0.3
+        else:
+            quantityTime = 0.4
+        if password == 'cat123456':
+            cache.delete('catData')
+            cache.set('catData', [quantityTime,"open"])
+            print cache.get('catData')
+            return jsonify({'status': 'ok', 'content': {"quantityTime": cache.get('catData')[0], 'status': cache.get('catData')[1]} })
+        else:
+            return jsonify({'status': 'error', 'content':{}})
+
+    if request.method == 'GET':
+        rv = cache.get('catData')
+
+        if rv is None:
+            return jsonify({'status': 'error'})
+
+        return jsonify({'status': 'ok', 'content': {"quantityTime": rv[0], 'status': rv[1]}})
 # admin
 admin.dashboard()
 # login
