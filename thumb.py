@@ -40,6 +40,7 @@ def upload_file(file, basePath, domain, storeModel):
         return {"title": title, "isImage": 1, "fileName": filename, "localUrl": localUrl, "result": 1}
 
 
+
 def upload_file_by_pillow(file,filename, basePath, domain, storeModel):
     if file :
         filename = secure_filename(filename)

@@ -1,4 +1,4 @@
-from flask import Flask, render_template,redirect,jsonify,request
+from flask import Flask, render_template,redirect,jsonify,request,flash
 from dbORM import db,User, Post
 import thumb
 from moduleGlobal import app, qiniu_store, QINIU_DOMAIN, TAG, UPLOAD_URL
@@ -94,6 +94,23 @@ def cat():
             return jsonify({'status': 'close'})
         cache.delete('catData')
         return jsonify({ "quantityTime": rv[0], 'status': rv[1]})
+
+@app.route('/api/upload', methods=['POST'])
+def uploadApi():
+    if 'Photo' not in request.files:
+        flash('No file part')
+        return jsonify({"status":"failed","msg":"No file part"})
+    file = request.files['Photo']
+    if file.filename == '':
+        flash('No selected file')
+        return jsonify({"status": "failed", "msg": "No selected file"})
+    if file :
+        result = thumb.upload_file(file,UPLOAD_URL,QINIU_DOMAIN,qiniu_store)
+        if result['result'] != 1:
+            return jsonify({"status": "failed", "msg": "server busy"})
+        print result
+        return  jsonify({"status": "ok", "msg": "ok"})
+
 # admin
 admin.dashboard()
 # login

@@ -17,3 +17,4 @@ POST_PER_PAGE = 20
 UPLOAD_URL = 'static/upload'
 CAROUSEL_THUMBNAIL = ''
 PREVIEW_THUMBNAIL = '-preview'
+
