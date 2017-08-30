@@ -108,8 +108,14 @@ def uploadApi():
         result = thumb.upload_file(file,UPLOAD_URL,QINIU_DOMAIN,qiniu_store)
         if result['result'] != 1:
             return jsonify({"status": "failed", "msg": "server busy"})
-        print result
+
+        cache.set("PhotoUrl", result['localUrl'])
         return  jsonify({"status": "ok", "msg": "ok"})
+
+@app.route('/showphoto', methods=['GET'])
+def showPhoto():
+    url = cache.get("PhotoUrl")
+    return render_template("ShowPhoto.html",photoUrl=url)
 
 # admin
 admin.dashboard()
