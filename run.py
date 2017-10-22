@@ -31,6 +31,10 @@ def aboutus():
 def career():
     return render_template('index.html')
 
+@app.route('/live')
+def live():
+    return render_template('live.html')
+
 @app.route('/admin/upload', methods=['POST'])
 def upload():
     file = request.files.to_dict()['files[]']
