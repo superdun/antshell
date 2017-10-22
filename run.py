@@ -1,4 +1,5 @@
-from flask import Flask, render_template,redirect,jsonify,request,flash
+import random
+from flask import Flask, render_template,redirect,jsonify,request,flash,url_for
 from dbORM import db,User, Post
 import thumb
 from moduleGlobal import app, qiniu_store, QINIU_DOMAIN, TAG, UPLOAD_URL
@@ -33,8 +34,20 @@ def career():
 
 @app.route('/live')
 def live():
-    return render_template('live.html')
+    # return render_template('live.html')
+    if cache.get('liveSwitch')==1:
+        return render_template('live.html')
+    filePath = url_for('static', filename='video/cat%d.mp4'%random.randint(1,4))
+    return render_template('nolive.html',filePath = filePath)
 
+@app.route('/api/live')
+def liveApi():
+    # return render_template('live.html')
+    if cache.get('liveSwitch')==1:
+        cache.set('liveSwitch',0)
+    else:
+        cache.set('liveSwitch', 1)
+    return jsonify({'liveStat':cache.get('liveSwitch')})
 @app.route('/admin/upload', methods=['POST'])
 def upload():
     file = request.files.to_dict()['files[]']
