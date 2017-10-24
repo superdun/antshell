@@ -8,7 +8,7 @@ import flask_login
 from werkzeug.contrib.cache import FileSystemCache
 
 
-cache = FileSystemCache(cache_dir='cache/',default_timeout=300)
+cache = FileSystemCache(cache_dir='cache/',default_timeout=0)
 
 
 
