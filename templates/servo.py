@@ -9,40 +9,42 @@ import atexit
 import requests
 
 
-def move(X,Y):
-    atexit.register(GPIO.cleanup)
-
-    servopinX = 21
-    servopinY = 20
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(servopinX, GPIO.OUT, initial=False)
-    pX = GPIO.PWM(servopinX,50) #50HZ
-    pX.start(0)
-
-    GPIO.setup(servopinY, GPIO.OUT, initial=False)
-    pY = GPIO.PWM(servopinY,50) #50HZ
-    pY.start(0)
-    time.sleep(2)
+def move(pX,pY,X,Y):
+    print "moving"
     pX.ChangeDutyCycle(X)
     time.sleep(0.02)
     pX.ChangeDutyCycle(0)
     time.sleep(0.2)
-
     pY.ChangeDutyCycle(Y)
     time.sleep(0.02)
     pY.ChangeDutyCycle(0)
     time.sleep(0.2)
+    print "move to %d,%d"%(X,Y)
 
 
 
-
-url = "http://127.0.0.1:8080/api/live"
+url = "http://ant-shell.com/api/live"
 c_X = 90
 c_Y = 90
 c_stat = "on"
+atexit.register(GPIO.cleanup)
+
+servopinX = 21
+servopinY = 20
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(servopinX, GPIO.OUT, initial=False)
+pX = GPIO.PWM(servopinX, 50)  # 50HZ
+pX.start(0)
+
+GPIO.setup(servopinY, GPIO.OUT, initial=False)
+pY = GPIO.PWM(servopinY, 50)  # 50HZ
+pY.start(0)
+time.sleep(2)
+print "starting"
 while 1:
     data = {"X": c_X, "Y": c_Y, "stat": c_stat, "source": "D"}
     r = requests.post(url, data)
+
     try:
         X = r.json()["X"]
         Y = r.json()["Y"]
@@ -61,7 +63,7 @@ while 1:
                 os.system("kill %s"%ffmpegPID)
                 os.system("kill %s" % raspividPID)
                 print "shutdown"
-        move(int(X),int(Y))
+        move(pX,pY,int(X),int(Y))
         #
         c_X = X
         c_Y = Y

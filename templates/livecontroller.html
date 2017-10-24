@@ -44,11 +44,13 @@
             processData: false,
             success: function (result) {
                 if (result) {
-                    var data = result["current"];
-                    $('#X').val(data["X"]);
-                    $('#Y').val(data["Y"]);
-                    $('#stat').val(data["stat"]);
-                    $('#source').val(data["source"]);
+
+                    $('#X').val(result["X"]);
+                    $('#Y').val(result["Y"]);
+                    $('#stat').val(result["stat"]);
+
+
+
                 }
                 else {
                     alert("获取设备信息失败")
