@@ -39,15 +39,30 @@ def live():
         return render_template('live.html')
     filePath = url_for('static', filename='video/cat%d.mp4'%random.randint(1,4))
     return render_template('nolive.html',filePath = filePath)
-
-@app.route('/api/live')
-def liveApi():
+@app.route('/livecontroller')
+def livecontroller():
     # return render_template('live.html')
-    if cache.get('liveSwitch')==1:
-        cache.set('liveSwitch',0)
-    else:
-        cache.set('liveSwitch', 1)
-    return jsonify({'liveStat':cache.get('liveSwitch')})
+
+    return render_template('livecontroller.html')
+
+@app.route('/api/live', methods=['POST','GET'])
+def setliveApi():
+
+    if request.method=='POST':
+        X = int(request.form['X'])
+        Y = int(request.form['Y'])
+        stat = request.form['stat']
+        source = request.form['source']
+        if source == "U":
+            cache.set('goalLiveStat', {"X": X, 'Y': Y, "stat": stat})
+            return jsonify(cache.get('currentLiveStat'))
+        else:
+            cache.set('currentLiveStat', {"X": X, 'Y': Y, "stat": stat})
+            return jsonify(cache.get('goalLiveStat'))
+
+    if  request.method == 'GET':
+        return jsonify({'current':cache.get('currentLiveStat'),'goal':cache.get('goalLiveStat')})
+
 @app.route('/admin/upload', methods=['POST'])
 def upload():
     file = request.files.to_dict()['files[]']
