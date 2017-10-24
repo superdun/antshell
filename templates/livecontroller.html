@@ -31,7 +31,14 @@
         var formData = new FormData();
         formData.append('X', $('#X').val());
         formData.append('Y', $('#Y').val());
-        formData.append('stat', $('#stat').val());
+        if($('#stat').prop("checked")){
+            formData.append('stat', "on");
+        }
+        else {
+          formData.append('stat', "off");
+        }
+
+
         formData.append('source', "U");
         $.ajax({
             url: '/api/live',
