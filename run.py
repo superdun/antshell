@@ -54,10 +54,11 @@ def setliveApi():
         stat = request.form['stat']
         source = request.form['source']
         if source == "U":
-            cache.set('goalLiveStat', {"X": X, 'Y': Y, "stat": stat})
+            cache.set('goalLiveStat', {"X": X, 'Y': Y, "stat": stat}, timeout=0)
+            print {'current':cache.get('currentLiveStat'),'goal':cache.get('goalLiveStat')}
             return jsonify(cache.get('currentLiveStat'))
         else:
-            cache.set('currentLiveStat', {"X": X, 'Y': Y, "stat": stat})
+            cache.set('currentLiveStat', {"X": X, 'Y': Y, "stat": stat}, timeout=0)
             return jsonify(cache.get('goalLiveStat'))
 
     if  request.method == 'GET':
