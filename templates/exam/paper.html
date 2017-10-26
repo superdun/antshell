@@ -1,0 +1,82 @@
+{% extends "exam/base.html" %}
+{% block content %}
+    {% set choices = ["A","B","C","D"] %}
+    <div class="container">
+        <h4>姓名：{{ user.name }}</h4>
+        <form class="col l12">
+            {% for i in data %}
+                {% set indexA = loop.index %}
+                <hr>
+                <div class="a">
+                    <h5>{{ loop.index }}. {{ i.title }}</h5>
+                    <br>
+                </div>
+                {% for j in i.q %}
+                    {% set indexQ = loop.index %}
+                    <div class="b">
+                        <h5>{{ indexA }}.{{ loop.index }} {{ j.title }}</h5>
+                        <img class="responsive-img" src="{{ j.img }}">
+                        {% for k in j.c %}
+                            <p>
+                                <input name="{{ j.id }}" type="radio"
+                                       id="a{{ indexA }}q{{ indexQ }}c{{ choices[loop.index] }}"/>
+                                <label for="a{{ indexA }}q{{ indexQ }}c{{ choices[loop.index] }}">{{ k }}</label>
+                            </p>
+                        {% endfor %}
+
+
+                    </div>
+                {% endfor %}
+
+
+            {% endfor %}
+            <a class="waves-effect waves-light btn" id="submit">提交</a>
+        </form>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+
+
+        $('#submit').click(function () {
+            var rawAnswerList =$("input:checked").next();
+            var answerDict = {};
+            for (var i=0;i<rawAnswerList.length;i++){
+                var id = $(rawAnswerList[i]).attr("for");
+                answerDict[id] = $(rawAnswerList[i]).html();
+            }
+            var answerStr = JSON.stringify(answerDict);
+            var formData = new FormData();
+            formData.append('answer', answerStr);
+
+
+            $.ajax({
+                url: '/api/exam/result',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    if (result) {
+                        if (result['stat'] === "ok") {
+                            alert("试卷提交成功");
+{#                            window.location = "http://"+window.location.host+"/exam/result?papercode="+result['paperCode'];#}
+                            $("input").attr("disabled","disabled")
+                            $('#submit').attr("disabled","disabled")
+                        }
+                        else {
+                            alert("提交失败，请重试或联系管理员")
+                        }
+
+                        console.log(result)
+                    }
+                    else {
+                        alert("获取信息失败请重试")
+                    }
+
+                }
+
+            })
+        });
+    </script>
+{% endblock %}

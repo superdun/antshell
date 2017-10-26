@@ -1,0 +1,70 @@
+{% extends "exam/base.html" %}
+{% block content %}
+    <div class="container col s12">
+        <form class="col s12">
+            <div class="row" style="text-align: center">
+                <h2 style="color: black">工索具考核系统</h2>
+                <h3>登录页面</h3>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="username" type="text" class="validate">
+                    <label data-error="输入错误" for="username">姓名(必填)</label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="gonghao" type="text" class="validate">
+                    <label for="gonghao">工号（选填）</label>
+                </div>
+            </div>
+
+        </form>
+        <div>
+            <button class="btn waves-effect waves-light" id="login">登录
+                <i class="material-icons right">send</i>
+            </button>
+
+        </div>
+    </div>
+
+{% endblock %}
+{% block script %}
+    <script>
+
+
+        $('#login').click(function () {
+
+            var formData = new FormData();
+            formData.append('username', $('#username').val());
+            formData.append('gonghao', $('#gonghao').val());
+
+            $.ajax({
+                url: '/api/exam/login',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    if (result) {
+                        if (result['stat'] === "ok") {
+                            alert("试卷生成成功，即将跳转");
+                            window.location = "http://"+window.location.host+"/exam?papercode="+result['paperCode'];
+                        }
+                        else {
+                            alert("用户名错误")
+                        }
+
+                        console.log(result)
+                    }
+                    else {
+                        alert("获取信息失败请重试")
+                    }
+
+                }
+
+            })
+        });
+    </script>
+{% endblock %}

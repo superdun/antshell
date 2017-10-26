@@ -45,40 +45,43 @@ p2=""
 print "starting"
 while 1:
     time.sleep(1)
+    try :
+        data = {"X": c_X, "Y": c_Y, "stat": c_stat, "source": "D"}
+        r = requests.post(url, data)
+        print r.json()
 
-    data = {"X": c_X, "Y": c_Y, "stat": c_stat, "source": "D"}
-    r = requests.post(url, data)
-    print r.json()
+        X = r.json()["X"]
+        Y = r.json()["Y"]
+        stat = r.json()["stat"]
 
-    X = r.json()["X"]
-    Y = r.json()["Y"]
-    stat = r.json()["stat"]
+        if stat == "on" and stat != c_stat:
+            print "on...."
+            p1 = Popen(['raspivid', '-t', '0', '-w', '320', '-h', '240', '-o', '-'], stdout=PIPE)
+            p2 = Popen(
+                ['ffmpeg', '-i', '-', '-s', '320x240', '-vcodec', 'libx264', '-preset:v', 'ultrafast', '-f', 'flv',
+                 'rtmp://47.94.246.161:1935/hls/pet']
+                , stdin=p1.stdout, stdout=None)
+            print "turnon"
+        if stat == "off" and stat != c_stat:
+            ffmpegPID = os.popen('pgrep -lo ffmpeg').readlines()
+            raspividPID = os.popen('pgrep -lo raspivid').readlines()
+            if len(ffmpegPID) > 0 and len(raspividPID) > 0 and p1 and p2:
+                p1.kill()
+                p2.kill()
+                # ffmpegPID = ffmpegPID[0].split(" ")
+                # raspividPID = raspividPID[0].split(" ")
+                # os.system("kill %s" % ffmpegPID)
+                # os.system("kill %s" % raspividPID)
+                print "shutdown live"
+        if c_X != X or c_Y != Y:
+            move(pX, pY, int(X), int(Y))
+        #
+        c_X = X
+        c_Y = Y
+        c_stat = stat
+    except:
+        print "err"
 
-    if stat == "on" and stat != c_stat:
-        print "on...."
-        p1 = Popen(['raspivid', '-t', '0', '-w', '320', '-h', '240', '-o', '-'], stdout=PIPE)
-        p2 = Popen(
-            ['ffmpeg', '-i', '-', '-s', '320x240', '-vcodec', 'libx264', '-preset:v', 'ultrafast', '-f', 'flv',
-             'rtmp://47.94.246.161:1935/hls/pet']
-            , stdin=p1.stdout, stdout=None)
-        print "turnon"
-    if stat == "off" and stat != c_stat:
-        ffmpegPID = os.popen('pgrep -lo ffmpeg').readlines()
-        raspividPID = os.popen('pgrep -lo raspivid').readlines()
-        if len(ffmpegPID) > 0 and len(raspividPID) > 0 and p1 and p2:
-            p1.kill()
-            p2.kill()
-            # ffmpegPID = ffmpegPID[0].split(" ")
-            # raspividPID = raspividPID[0].split(" ")
-            # os.system("kill %s" % ffmpegPID)
-            # os.system("kill %s" % raspividPID)
-            print "shutdown live"
-    if c_X != X or c_Y != Y:
-        move(pX, pY, int(X), int(Y))
-    #
-    c_X = X
-    c_Y = Y
-    c_stat = stat
 
 
 
