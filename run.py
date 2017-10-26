@@ -35,8 +35,11 @@ def career():
 @app.route('/live')
 def live():
     # return render_template('live.html')
-    if cache.get('liveSwitch')==1:
-        return render_template('live.html')
+    liveStat = cache.get('goalLiveStat')
+    if  liveStat:
+        if liveStat['stat']=="on":
+            return render_template('live.html')
+
     filePath = url_for('static', filename='video/cat%d.mp4'%random.randint(1,4))
     return render_template('nolive.html',filePath = filePath)
 @app.route('/livecontroller')
