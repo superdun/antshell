@@ -60,6 +60,7 @@
                     if (result) {
                         if (result['stat'] === "ok") {
                             alert("试卷提交成功");
+                            alert("答案正确！");
 {#                            window.location = "http://"+window.location.host+"/exam/result?papercode="+result['paperCode'];#}
                             $("input").attr("disabled","disabled")
                             $('#submit').attr("disabled","disabled")
