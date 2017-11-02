@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+
+    <title>上港考试系统动画DEMO</title>
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="gamelayer">
+    <canvas id="canvas"></canvas>
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+    window.onload = function () {
+        game.init()
+    };
+    var game = {
+        init: function () {
+
+            clearInterval(game.timer);
+            game.ctx = document.getElementById('canvas').getContext('2d');
+            game.ctx.canvas.width = window.innerWidth;
+            game.ctx.canvas.height = window.innerHeight;
+            game.width = window.innerWidth;
+            game.height = window.innerHeight;
+            game.answer = {};
+            game.shake_dist = 0;
+            game.time_count = 0;
+
+            loader.init();
+
+            bg.init();
+            fact1.init();
+            fact2.init();
+            fact3.init();
+            fact4.init();
+            fact5.init();
+
+            game.inter();
+            toolbar.init();
+
+            touch.init();
+            game.facts = [fact1, fact2, fact3, fact4, fact5];
+        },
+        move: function () {
+            game.time_count++;
+            bg.draw();
+            toolbar.draw();
+
+            for (var i = 0; i < game.facts.length; i++) {
+
+                if (game.facts[i].fixed === 1) {
+                    game.facts[i].drawFix();
+                }
+                if (game.facts[i].moving === 1) {
+                    game.facts[i].drawMoving(touch.loc[0], touch.loc[1]);
+                }
+            }
+
+            if (Object.keys(game.answer).length === 5) {
+
+                if (game.answer[0] === 1 &&game.answer[1] === 1&&game.answer[2] === 1&&game.answer[3] === 1&&game.answer[4] === 1) {
+                    alert("组合正确！");
+                    game.answer={};
+                }
+                else {
+                    game.shake_dist = 15;
+                    game.answer={};
+                    game.timeout2 = setTimeout(shake.over, 200);
+
+
+                }
+                 for (var i = 0; i < game.facts.length; i++) {
+
+                     game.facts[i].fixed = 0;
+                 }
+            }
+            shake.start();
+        },
+        inter: function () {
+            game.timer = setInterval(game.move, 20);
+        },
+        over1: function () {
+
+        },
+        over2: function () {
+
+        }
+    };
+    var loader = {
+        init: function () {
+            loader.img();
+        },
+        img: function () {
+            img.bg = new Image();
+            img.bg.src = "{{ url_for('static', filename='img/exam/game/bg.jpg') }}";
+            img.dg = new Image();
+            img.dg.src = "{{ url_for('static', filename='img/exam/game/dg.png') }}";
+            img.cj = new Image();
+            img.cj.src = "{{ url_for('static', filename='img/exam/game/cj.png') }}";
+            img.nls = new Image();
+            img.nls.src = "{{ url_for('static', filename='img/exam/game/nls.png') }}";
+            img.xdx = new Image();
+            img.xdx.src = "{{ url_for('static', filename='img/exam/game/xdx.png') }}";
+            img.xk = new Image();
+            img.xk.src = "{{ url_for('static', filename='img/exam/game/xk.png') }}";
+        },
+    };
+    var img = {};
+    var draw = {};
+    var mouse = {
+        init: function () {
+            mouse.pos = document.getElementById('canvas');
+            mouse.move();
+            mouse.down();
+            mouse.up();
+        },
+        move: function () {
+            mouse.pos.onmousemove = function (e) {
+                e = e || window.event;
+
+                mouse.offx = e.layerX;
+                mouse.offy = e.layerY;
+
+            };
+        },
+        down: function () {
+            mouse.pos.onmousedown = function (e) {
+                e = e || window.event;
+                mouse.offx = e.layerX;
+                mouse.offy = e.layerY;
+
+                if (mouse.offy >= game.height - 2 * toolbar.height) {
+                    var squadCount = floor(mouse.offx / (2 * toolbar.height));
+
+                }
+
+
+            }
+        },
+        up: function () {
+            mouse.pos.onmousedown = function (e) {
+                e = e || window.event;
+                mouse.offx = e.layerX;
+                mouse.offy = e.layerY;
+
+            }
+        }
+    };
+    var touch = {
+        init: function () {
+            touch.pos = document.getElementById('canvas');
+            touch.pos.addEventListener("touchstart", touch.handleStart, false);
+            touch.pos.addEventListener("touchend", touch.handleEnd, false);
+            touch.pos.addEventListener("touchmove", touch.handleMove, false);
+            touch.loc = [-1, -1];
+            touch.choice = [-1, -1];
+            touch.target = {}
+        },
+        handleStart: function (evt) {
+            evt.preventDefault();
+            var t = evt.changedTouches[0];
+            if (t.pageY >= game.height - 2 * toolbar.height) {
+                var squadCount = Math.floor(t.pageX / (2 * toolbar.height));
+                var choiceCount = -1;
+                if (t.pageY >= game.height - toolbar.height) {
+                    if (Math.floor(t.pageX / toolbar.height) % 2 !== 0) {
+                        choiceCount = 3;
+                    }
+                    else {
+                        choiceCount = 2;
+                    }
+                }
+                else {
+                    if (Math.floor(t.pageX / toolbar.height) % 2 !== 0) {
+                        choiceCount = 1;
+                    }
+                    else {
+                        choiceCount = 0;
+                    }
+                }
+                touch.loc = [t.pageX, t.pageY];
+                touch.choice = [squadCount, choiceCount];
+                for (var i = 0; i < game.facts.length; i++) {
+
+                    if (game.facts[i].id === squadCount) {
+                        touch.target = game.facts[i];
+                        game.facts[i].moving = 1;
+                        break;
+                    }
+                }
+            }
+
+        },
+        handleMove: function (evt) {
+            evt.preventDefault();
+
+            var t = evt.changedTouches[0];
+            touch.loc = [t.pageX, t.pageY];
+
+
+        },
+        handleEnd: function (evt) {
+            evt.preventDefault();
+
+            var t = evt.changedTouches[0];
+            touch.loc = [-1, -1];
+            touch.target.moving = 0;
+            if (t.pageY < game.height - 2 * toolbar.height) {
+                touch.target.fixed = 1;
+                touch.target.status = 0;
+                game.answer[touch.choice[0]] = touch.choice[1]
+            }
+        },
+        handleCancel: function (evt) {
+            evt.preventDefault();
+
+            var t = evt.changedTouches[0];
+            touch.loc = [-1, -1];
+            touch.target.moving = 0;
+            if (t.pageY < game.height - 2 * toolbar.height) {
+                touch.target.fixed = 1;
+                touch.target.status = 0;
+                game.answer[touch.choice[0]] = touch.choice[1]
+            }
+        }
+        // move:function() {
+        //     mouse.pos.onmousemove = function (e) {
+        //         e=e||window.event;
+
+        //         mouse.offx = e.layerX;
+        //         mouse.offy = e.layerY;console.log(mouse.offx,mouse.offy)
+
+        //     };
+        // },
+        // down:function(){
+        //     mouse.pos.onmousedown=function(e){
+        //         e=e||window.event;
+        //         mouse.offx = e.layerX;
+        //         mouse.offy = e.layerY;
+        //         console.log(mouse.offx,mouse.offy);
+        //         console.log(game.height-2*toolbar.height);
+        //         console.log("sss");
+        //         if (mouse.offy>=game.height-2*toolbar.height){
+        //             var squadCount = floor(mouse.offx/(2*toolbar.height));
+
+        //             console.log(squadCount)
+        //         }
+
+
+        //     }
+        // },
+        // up:function(){
+        //     mouse.pos.onmousedown=function(e){
+        //         e=e||window.event;
+        //         mouse.offx = e.layerX;
+        //         mouse.offy = e.layerY;
+
+        //         console.log(mouse.offx,mouse.offy)
+
+
+        //     }
+        // }
+    };
+    var toolbar = {
+        init: function () {
+
+            toolbar.width = game.width / 10;
+            toolbar.height = toolbar.width;
+
+            toolbar.zeroPoint = [0, game.height - toolbar.height * 2];
+            toolbar.content = [[fact1.img, "30T*1.6M", "30T*4M", "30T*3.2M", "30T*6M"], [fact2.img, "28mm*3m", "28mm*6m", "32mm*3m", "32mm*6m"]
+                , [fact3.img, "5T", "7T", "11T", "15T"], [fact4.img, "10T*3.5m", "15T*4m", "5T*6m", "20T*5m"],
+                [fact5.img, "3.75T", "4.25T", "6.5T", "8.5T"]]
+
+
+        },
+        draw: function () {
+            tmpPos = []
+            tmpPos[0] = toolbar.zeroPoint[0];
+            tmpPos[1] = toolbar.zeroPoint[1];
+            game.ctx.strokeStyle = "000";
+            game.ctx.linewidth = 20;
+            for (var i = 0; i < toolbar.content.length; i++) {
+
+                for (var j = 0; j < 4; j++) {
+
+                    if (j > 1) {
+
+                        game.ctx.strokeRect(tmpPos[0] + (j - 2) * toolbar.width, tmpPos[1], toolbar.width, toolbar.height)
+                        game.ctx.drawImage(toolbar.content[i][0], tmpPos[0] + (j - 2) * toolbar.width, tmpPos[1], toolbar.width, toolbar.height)
+
+                    }
+                    else {
+                        game.ctx.strokeRect(tmpPos[0] + j * toolbar.width, tmpPos[1] + toolbar.height, toolbar.width, toolbar.height)
+                        game.ctx.drawImage(toolbar.content[i][0], tmpPos[0] + j * toolbar.width, tmpPos[1] + toolbar.height, toolbar.width, toolbar.height)
+
+                    }
+
+
+                }
+                tmpPos[0] = tmpPos[0] + 2 * toolbar.width
+            }
+
+        }
+
+    };
+    var bg = {
+
+        init: function () {
+            bg.img = img.bg;
+            bg.width = game.width;
+            bg.height = game.height;
+            bg.posx = 0;
+            bg.posy = 0
+        },
+        draw: function () {
+            game.ctx.drawImage(img.bg, bg.posx, bg.posy, bg.width, bg.height)
+        }
+    };
+    var fact1 = {
+
+        init: function () {
+            fact1.height = game.height * 2 / 3;
+            fact1.width = game.width * 2 / 3;
+            fact1.zeroPoint = [game.width / 6, game.height / 6];
+            fact1.text = "撑架";
+            fact1.img = img.cj;
+            fact1.status = 1;
+            fact1.fixed = 0;
+            fact1.moving = 0;
+            fact1.id = 0
+        },
+        drawFix: function () {
+            game.ctx.drawImage(fact1.img, fact1.zeroPoint[0], fact1.zeroPoint[1], fact1.width, fact1.height)
+        },
+        drawMoving: function (x, y) {
+            game.ctx.drawImage(fact1.img, x, y, toolbar.width + 10, toolbar.height + 10)
+        }
+    };
+    var fact2 = {
+
+        init: function () {
+            fact2.height = game.height / 15;
+            fact2.width = game.width / 10;
+            fact2.zeroPoint = [game.width / 2, game.height / 6 + game.height / 5 - 10]
+            fact2.img = img.dg;
+            fact2.status = 1;
+            fact2.fixed = 0;
+            fact2.moving = 0;
+            fact2.id = 1
+        },
+        drawFix: function () {
+            game.ctx.drawImage(fact2.img, fact2.zeroPoint[0], fact2.zeroPoint[1], fact2.width, fact2.height)
+        },
+        drawMoving: function (x, y) {
+            game.ctx.drawImage(fact2.img, x, y, toolbar.width + 10, toolbar.width + 10)
+        }
+    };
+    var fact3 = {
+
+        init: function () {
+            fact3.height = game.height / 5;
+            fact3.width = game.width / 10;
+            fact3.zeroPoint = [game.width / 2, game.height / 6];
+            fact3.img = img.nls;
+            fact3.status = 1;
+            fact3.fixed = 0;
+            fact3.moving = 0;
+            fact3.id = 2
+        },
+        drawFix: function () {
+            game.ctx.drawImage(fact3.img, fact3.zeroPoint[0], fact3.zeroPoint[1], fact3.width, fact3.height)
+        },
+        drawMoving: function (x, y) {
+            game.ctx.drawImage(fact3.img, x, y, toolbar.width + 10, toolbar.width + 10)
+        }
+    };
+    var fact4 = {
+
+        init: function () {
+            fact4.height = game.height / 8;
+            fact4.width = game.width / 10;
+            fact4.zeroPoint = [game.width / 2, game.height / 6 + game.height / 5 + game.height / 15 - 10]
+            fact4.img = img.xdx;
+            fact4.status = 1;
+            fact4.fixed = 0;
+            fact4.moving = 0;
+            fact4.id = 3
+        },
+        drawFix: function () {
+            game.ctx.drawImage(fact4.img, fact4.zeroPoint[0], fact4.zeroPoint[1], fact4.width, fact4.height)
+        },
+        drawMoving: function (x, y) {
+            game.ctx.drawImage(fact4.img, x, y, toolbar.width + 10, toolbar.width + 10)
+        }
+    };
+    var fact5 = {
+
+        init: function () {
+            fact5.height = game.height / 15;
+            fact5.width = game.width / 10;
+            fact5.zeroPoint = [game.width / 2, game.height / 6 + game.height / 5 + game.height / 15 + game.height / 8 - 10]
+            fact5.img = img.xk;
+            fact5.status = 1;
+            fact5.fixed = 0;
+            fact5.moving = 0;
+            fact5.id = 4
+        },
+        drawFix: function () {
+            game.ctx.drawImage(fact5.img, fact5.zeroPoint[0], fact5.zeroPoint[1], fact5.width, fact5.height)
+        },
+        drawMoving: function (x, y) {
+            game.ctx.drawImage(fact5.img, x, y, toolbar.width + 10, toolbar.width + 10)
+        }
+    };
+    var shake = {
+        start: function () {
+            switch (game.time_count % 5) {
+                case 0:
+                    bg.posx = -1 * game.shake_dist;
+                    bg.posy = -1 * game.shake_dist;
+                    break;
+                case 1:
+                    bg.posx = 0;
+                    bg.posy = 0;
+                    break;
+                case 2:
+                    bg.posx = -game.shake_dist;
+                    bg.posy = game.shake_dist;
+                    break;
+                case 4:
+                    bg.posx = 0;
+                    bg.posy = 0;
+                    break;
+            }
+        },
+        over: function () {
+            game.shake_dist = 0;
+
+            alert("答案错误");
+{#            clearInterval(game.timer);#}
+        }
+    }
+</script>
+</body>
+</html>
+

@@ -204,6 +204,10 @@ def exam():
 def examResult():
 
     return render_template("exam/result.html")
+@app.route('/exam/game', methods=['GET'])
+def examGame():
+
+    return render_template("exam/game.html")
 #    AABAC
 
 # admin
